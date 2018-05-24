@@ -1,5 +1,4 @@
-import sys, os
-os.chdir('/home/rosaell/Prog/allocine/plan-your-movies')
+import sys
 from PyQt5.QtWidgets import QGroupBox, QComboBox, QDateEdit, QCalendarWidget, QWidget, QApplication, QStackedLayout, QLabel, QLineEdit, QPushButton, QHBoxLayout, QVBoxLayout
 from PyQt5.QtCore import QDate
 from api import *
