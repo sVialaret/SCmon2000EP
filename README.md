@@ -6,6 +6,6 @@ WIP
 Fonctionnalités à venir :
 =========================
 
-	* Recherche par film
-	* Sélection de cinémas favoris
-	* Recherche du trajet (RATP ...)
+ * Recherche par film
+ * Sélection de cinémas favoris
+ * Recherche du trajet (RATP ...)
