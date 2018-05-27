@@ -70,6 +70,14 @@ def getDate():
 
 def cityDesc(city):
 
+	"""
+		code de retour : 
+			100 : tout est normal
+			200 : la requete n'a pas abouti
+			300 : pas de cine dans la ville
+			400 : la ville n'existe pas
+	"""
+
 	ip, headersUA = init_connect()
 	YMDstr = getDate()
 
@@ -85,30 +93,32 @@ def cityDesc(city):
 	sig = urllib.quote_plus(base64.b64encode(hashlib.sha1(toEncrypt).digest()))
 
 	urlComplete = 'http://api.allocine.fr/rest/v3/search?' + url + "&sig=" + sig
-
-	# print(urlComplete)
 	
 	req = requests.get(urlComplete, headers=headersUA)
-	# print(req.status_code)
-	# print(req.text)
 
 	listeCine = []
 	codePostal = 0
 
+	codeRetour = 100
+
 	if req.status_code == 200:
 
-		codePostal = req.json()['feed']['location'][0]['postalCode']
+		if 'location' in req.json()['feed']:
 
-		if 'theater' in req.json()['feed']:
-			for theaterCity in req.json()['feed']['theater']:
-				listeCine.append(theaterCity)
+			codePostal = req.json()['feed']['location'][0]['postalCode']
+
+			if 'theater' in req.json()['feed']:
+				for theaterCity in req.json()['feed']['theater']:
+					listeCine.append(theaterCity)
+			else:
+				codeRetour = 300
 		else:
-			print('Pas de salle de cinema a ' + searchField)
+			codeRetour = 400
 
 	else:
-		print("La requete n'a pas abouti")
+		codeRetour = 200
 
-	return codePostal, listeCine
+	return codePostal, listeCine, codeRetour
 
 def showtimeInTheater(codeTheater, jour):
 	ip, headersUA = init_connect()
