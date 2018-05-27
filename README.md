@@ -10,3 +10,4 @@ Fonctionnalités à venir :
  * Sélection de cinémas favoris
  * Recherche du trajet (RATP ...)
  * Détails des films
+
