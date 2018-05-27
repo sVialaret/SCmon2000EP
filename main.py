@@ -1,5 +1,5 @@
 import sys
-from PyQt5.QtWidgets import QGroupBox, QComboBox, QDateEdit, QCalendarWidget, QWidget, QApplication, QStackedLayout, QLabel, QLineEdit, QPushButton, QHBoxLayout, QVBoxLayout
+from PyQt5.QtWidgets import QScrollArea, QGroupBox, QComboBox, QDateEdit, QCalendarWidget, QWidget, QApplication, QStackedLayout, QLabel, QLineEdit, QPushButton, QHBoxLayout, QVBoxLayout
 from PyQt5.QtCore import QDate
 from api import *
 
@@ -18,11 +18,9 @@ class Principale(QWidget):
 		calendarJour.setCalendarPopup(True)
 		calendarJour.setDate(QDate.currentDate())
 		buttonValiderParam = QPushButton("Valider")
-		groupBoxSeances = QGroupBox()
 
 		hboxParam = QHBoxLayout()
 		vboxGlobal = QVBoxLayout()
-		vboxSeances = QVBoxLayout()
 
 		hboxParam.addWidget(labelVille)
 		hboxParam.addWidget(textEditVille)
@@ -31,7 +29,7 @@ class Principale(QWidget):
 		hboxParam.addWidget(buttonValiderParam)
 
 		vboxGlobal.addLayout(hboxParam)
-		vboxGlobal.addLayout(vboxSeances)
+
 
 		self.setLayout(vboxGlobal)
 		
@@ -78,6 +76,10 @@ class Principale(QWidget):
 									dicoHoraires[film['onShow']['movie']['title']][-1]['code'] = cine['code']
 									dicoHoraires[film['onShow']['movie']['title']][-1]['horaire'] = occurSeance['$']
 		
+		scrollAreaSeance = QScrollArea()
+		groupBoxSeances = QGroupBox()
+		vboxSeances = QVBoxLayout()
+
 		for film in dicoHoraires:
 			dicoHoraires[film] = sorted(dicoHoraires[film], key=lambda t:t['horaire'])
 			groupBoxHoraire = QGroupBox(film)
@@ -85,7 +87,10 @@ class Principale(QWidget):
 			for hor in dicoHoraires[film]:
 				vboxHor.addWidget(QLabel(hor['salle'] + ' : ' + hor['horaire']))
 			groupBoxHoraire.setLayout(vboxHor)
-			self.layout().itemAt(1).addWidget(groupBoxHoraire)
+			vboxSeances.addWidget(groupBoxHoraire)
+		groupBoxSeances.setLayout(vboxSeances)
+		scrollAreaSeance.setWidget(groupBoxSeances)
+		self.layout().addWidget(scrollAreaSeance)
 
 monApp=QApplication(sys.argv)
 fenetre=Principale()
