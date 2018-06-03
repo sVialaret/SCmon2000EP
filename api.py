@@ -173,4 +173,4 @@ def infoFilm(codeFilm):
 	return req.json()
 
 def getImg(url):
-	urllib.urlretrieve(url, ".poster/poster.jpg")
+	urllib.urlretrieve(url, "/tmp/poster.jpg")

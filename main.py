@@ -158,7 +158,7 @@ class Principale(QWidget):
 		anneeLabel = QLabel("Date de sortie : " + annee)
 		paysLabel = QLabel("Pays : " + pays)
 		posterLabel = QLabel()
-		posterPixmap = QPixmap('.poster/poster.jpg')
+		posterPixmap = QPixmap('/tmp/poster.jpg')
 		posterPixmap = posterPixmap.scaledToWidth(255)
 		posterLabel.setPixmap(posterPixmap)
 		lienAllocineLabel = QLabel("<a href="+url+">Lien Allocine</a>")
