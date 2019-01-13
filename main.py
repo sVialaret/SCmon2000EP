@@ -50,88 +50,87 @@ class Principale(QWidget):
 
 
 	def validerParam(self, ville, jour):
-		year = jour.year()
-		month = jour.month()
-		day = jour.day()
+		if ville != '':
 
-		if month < 10:
-			strMonth = '0' + str(month)
-		else:
-			strMonth = str(month)
-		if day < 10:
-			strDay = '0' + str(day)
-		else:
-			strDay = str(day)
-		jourCine = str(year) + '-' + strMonth + '-' + strDay
-		CP, listeCine, codeRetour = api.cityDesc(ville)
+			year = jour.year()
+			month = jour.month()
+			day = jour.day()
 
-		if codeRetour == 100:
-			cleanLayout(self.layout())
-			dicoHoraires = dict()
-			dicoCodeFilm = dict()
+			if month < 10:
+				strMonth = '0' + str(month)
+			else:
+				strMonth = str(month)
+			if day < 10:
+				strDay = '0' + str(day)
+			else:
+				strDay = str(day)
+			jourCine = str(year) + '-' + strMonth + '-' + strDay
+			CP, listeCine, codeRetour = api.cityDesc(ville)
 
-			scrollAreaSeance = QScrollArea()
-			groupBoxSeances = QGroupBox()
-			vboxSeances = QVBoxLayout()
+			if codeRetour == 100:
+				cleanLayout(self.layout())
+				dicoHoraires = dict()
+				dicoCodeFilm = dict()
 
-			# print(listeCine)
+				scrollAreaSeance = QScrollArea()
+				groupBoxSeances = QGroupBox()
+				vboxSeances = QVBoxLayout()
 
+				for cine in listeCine:
+					seanceVille = api.showtimeInTheater(cine['code'], jourCine)
 
-			for cine in listeCine:
-				seanceVille = api.showtimeInTheater(cine['code'], jourCine)
+					if 'movieShowtimes' in seanceVille['theaterShowtimes'][0]:
 
-				if 'movieShowtimes' in seanceVille['theaterShowtimes'][0]:
+						for film in seanceVille['theaterShowtimes'][0]['movieShowtimes']:
+							for seance in film['scr']:
+								if seance['d'] == jourCine:
+									for occurSeance in seance['t']:
 
-					for film in seanceVille['theaterShowtimes'][0]['movieShowtimes']:
-						for seance in film['scr']:
-							if seance['d'] == jourCine:
-								for occurSeance in seance['t']:
-
-									if not (film['onShow']['movie']['title'] in dicoHoraires):
-										dicoHoraires[film['onShow']['movie']['title']] = []
-										dicoHoraires[film['onShow']['movie']['title']].append(dict())
-										dicoHoraires[film['onShow']['movie']['title']][-1]['salle'] = cine['name']
-										dicoHoraires[film['onShow']['movie']['title']][-1]['code'] = cine['code']
-										dicoHoraires[film['onShow']['movie']['title']][-1]['horaire'] = occurSeance['$']
-										dicoCodeFilm[film['onShow']['movie']['title']] = film['onShow']['movie']['code']
-									else:
-										dicoHoraires[film['onShow']['movie']['title']].append(dict())
-										dicoHoraires[film['onShow']['movie']['title']][-1]['salle'] = cine['name']
-										dicoHoraires[film['onShow']['movie']['title']][-1]['code'] = cine['code']
-										dicoHoraires[film['onShow']['movie']['title']][-1]['horaire'] = occurSeance['$']
+										if not (film['onShow']['movie']['title'] in dicoHoraires):
+											dicoHoraires[film['onShow']['movie']['title']] = []
+											dicoHoraires[film['onShow']['movie']['title']].append(dict())
+											dicoHoraires[film['onShow']['movie']['title']][-1]['salle'] = cine['name']
+											dicoHoraires[film['onShow']['movie']['title']][-1]['code'] = cine['code']
+											dicoHoraires[film['onShow']['movie']['title']][-1]['horaire'] = occurSeance['$']
+											dicoCodeFilm[film['onShow']['movie']['title']] = film['onShow']['movie']['code']
+										else:
+											dicoHoraires[film['onShow']['movie']['title']].append(dict())
+											dicoHoraires[film['onShow']['movie']['title']][-1]['salle'] = cine['name']
+											dicoHoraires[film['onShow']['movie']['title']][-1]['code'] = cine['code']
+											dicoHoraires[film['onShow']['movie']['title']][-1]['horaire'] = occurSeance['$']
+							
+				
 						
-			
-					
-			for film in dicoHoraires:
-				dicoHoraires[film] = sorted(dicoHoraires[film], key=lambda t:t['horaire'])
-				groupBoxHoraire = QGroupBox(film)
-				vboxHor = QVBoxLayout()
-				buttonInfoFilm = QPushButton("Informations sur le film")
-				vboxHor.addWidget(buttonInfoFilm)
-				buttonInfoFilm.clicked.connect(self.create_connect(dicoCodeFilm[film]))
-				for hor in dicoHoraires[film]:
-					vboxHor.addWidget(QLabel(hor['salle'] + ' : ' + hor['horaire']))
-				groupBoxHoraire.setLayout(vboxHor)
-				vboxSeances.addWidget(groupBoxHoraire)
-					
-			groupBoxSeances.setLayout(vboxSeances)
-			scrollAreaSeance.setWidget(groupBoxSeances)
-			self.layout().itemAt(1).widget().addWidget(scrollAreaSeance)
+				for film in dicoHoraires:
+					dicoHoraires[film] = sorted(dicoHoraires[film], key=lambda t:t['horaire'])
+					groupBoxHoraire = QGroupBox(film)
+					vboxHor = QVBoxLayout()
+					buttonInfoFilm = QPushButton("Informations sur le film")
+					vboxHor.addWidget(buttonInfoFilm)
+					buttonInfoFilm.clicked.connect(self.create_connect(dicoCodeFilm[film]))
+					for hor in dicoHoraires[film]:
+						vboxHor.addWidget(QLabel(hor['salle'] + ' : ' + hor['horaire']))
+					groupBoxHoraire.setLayout(vboxHor)
+					vboxSeances.addWidget(groupBoxHoraire)
+						
+				groupBoxSeances.setLayout(vboxSeances)
+				scrollAreaSeance.setWidget(groupBoxSeances)
+				self.layout().itemAt(1).widget().addWidget(scrollAreaSeance)
 
-		elif codeRetour == 200:
-			cleanLayout(self.layout())
-			errorMessageBox = QMessageBox()
-			errorMessageBox.critical(self, 'Erreur : connexion impossible', 'Allocine ne repond pas correctement. \nCauses possibles : \nProtocole de connexion à l\'API modifie \nSite temporairement inaccessible \nSite definitivement inaccessible (pas de pot)')
+			elif codeRetour == 200:
+				cleanLayout(self.layout())
+				errorMessageBox = QMessageBox()
+				errorMessageBox.critical(self, 'Erreur : connexion impossible', 'Allociné ne répond pas correctement. \nCauses possibles : \nProtocole de connexion à l\'API modifié \nSite temporairement inaccessible \nSite définitivement inaccessible (pas de pot)')
 
-		elif codeRetour == 300:
-			cleanLayout(self.layout())
-			errorLabel = QLabel("Il n'y a pas de salle de cinema referencees a " + ville)
-			self.layout().itemAt(1).widget().addWidget(errorLabel)
+			elif codeRetour == 300:
+				cleanLayout(self.layout())
+				errorLabel = QLabel("Il n'y a pas de salle de cinema référencées à " + ville)
+				self.layout().itemAt(1).widget().addWidget(errorLabel)
 
-		elif codeRetour == 400:
-			cleanLayout(self.layout())
-			errorLabel = QLabel("La ville " + ville + " n'est pas referencee, etes-vous certain de l'orthographe ?")
-			self.layout().itemAt(1).widget().addWidget(errorLabel)
+			elif codeRetour == 400:
+				cleanLayout(self.layout())
+				errorLabel = QLabel("La ville " + ville + u" n'est pas référencée, êtes-vous certain de l'orthographe ?")
+				self.layout().itemAt(1).widget().addWidget(errorLabel)
 
 	def infoFilm(self, code):
 		
