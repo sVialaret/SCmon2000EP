@@ -102,26 +102,31 @@ class Principale(QWidget):
 											dicoHoraires[film['onShow']['movie']['title']][-1]['horaire'] = occurSeance['$']
 							
 				
-						
-				for film in dicoHoraires:
-					dicoHoraires[film] = sorted(dicoHoraires[film], key=lambda t:t['horaire'])
-					groupBoxHoraire = QGroupBox(film)
-					vboxHor = QVBoxLayout()
-					buttonInfoFilm = QPushButton("Informations sur le film")
-					vboxHor.addWidget(buttonInfoFilm)
-					buttonInfoFilm.clicked.connect(self.create_connect(dicoCodeFilm[film]))
-					for hor in dicoHoraires[film]:
-						vboxHor.addWidget(QLabel(hor['salle'] + ' : ' + hor['horaire']))
-					groupBoxHoraire.setLayout(vboxHor)
-					vboxSeances.addWidget(groupBoxHoraire)
-						
-				groupBoxSeances.setLayout(vboxSeances)
-				scrollAreaSeance.setWidget(groupBoxSeances)
-				self.layout().itemAt(1).itemAt(0).widget().insertWidget(0,scrollAreaSeance)
+				if dicoHoraires != {}:		
+					for film in dicoHoraires:
+						dicoHoraires[film] = sorted(dicoHoraires[film], key=lambda t:t['horaire'])
+						groupBoxHoraire = QGroupBox(film)
+						vboxHor = QVBoxLayout()
+						buttonInfoFilm = QPushButton("Informations sur le film")
+						vboxHor.addWidget(buttonInfoFilm)
+						buttonInfoFilm.clicked.connect(self.create_connect(dicoCodeFilm[film]))
+						for hor in dicoHoraires[film]:
+							vboxHor.addWidget(QLabel(hor['salle'] + ' : ' + hor['horaire']))
+						groupBoxHoraire.setLayout(vboxHor)
+						vboxSeances.addWidget(groupBoxHoraire)
+							
+					groupBoxSeances.setLayout(vboxSeances)
+					scrollAreaSeance.setWidget(groupBoxSeances)
+					self.layout().itemAt(1).itemAt(0).widget().insertWidget(0,scrollAreaSeance)
+
+				else:
+					errorMessageBox = QMessageBox()
+					errorMessageBox.warning(self,u'Pas de séances', u"Il n'y a aucune séance à " + ville + " le " + jourCine + ".")
+
 
 			elif codeRetour == 200:
 				errorMessageBox = QMessageBox()
-				errorMessageBox.critical(self,'Erreur', 'Erreur : connexion impossible', 'Allociné ne répond pas correctement. \nCauses possibles : \nProtocole de connexion à l\'API modifié \nSite temporairement inaccessible \nSite définitivement inaccessible (pas de pot)')
+				errorMessageBox.critical(self, 'Erreur : connexion impossible', 'Allociné ne répond pas correctement. \nCauses possibles : \n - Connexion à internet défectueuse (vous pouvez vérifier) \n - Protocole de connexion à l\'API modifié \n - Site temporairement inaccessible \n - Site définitivement inaccessible (pas de pot)')
 
 			elif codeRetour == 300:
 				errorMessageBox = QMessageBox()

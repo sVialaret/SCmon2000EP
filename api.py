@@ -100,12 +100,16 @@ def cityDesc(city):
 
 	urlComplete = 'http://api.allocine.fr/rest/v3/search?' + url + "&sig=" + sig
 	
-	req = requests.get(urlComplete, headers=headersUA)
-
+	codeRetour = 200
 	listeCine = []
 	codePostal = 0
+	
+	try:
+		req = requests.get(urlComplete, headers=headersUA)
+	except:
+		return codePostal, listeCine, codeRetour
 
-	codeRetour = 100
+
 
 	if req.status_code == 200:
 
