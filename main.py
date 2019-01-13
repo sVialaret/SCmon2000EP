@@ -43,6 +43,7 @@ class Principale(QWidget):
 		self.setLayout(vboxGlobal)
 		
 		buttonValiderParam.clicked.connect(lambda: self.validerParam(textEditVille.text(), calendarJour.date()))
+		textEditVille.returnPressed.connect(lambda: self.validerParam(textEditVille.text(), calendarJour.date()))
 
 		self.setWindowTitle('Super Cinemon 2000 ExtraPlus')
 		
@@ -68,7 +69,7 @@ class Principale(QWidget):
 			CP, listeCine, codeRetour = api.cityDesc(ville)
 
 			if codeRetour == 100:
-				cleanLayout(self.layout())
+				# cleanLayout(self.layout())
 				dicoHoraires = dict()
 				dicoCodeFilm = dict()
 
@@ -118,17 +119,17 @@ class Principale(QWidget):
 				self.layout().itemAt(1).widget().addWidget(scrollAreaSeance)
 
 			elif codeRetour == 200:
-				cleanLayout(self.layout())
+				# cleanLayout(self.layout())
 				errorMessageBox = QMessageBox()
 				errorMessageBox.critical(self, 'Erreur : connexion impossible', 'Allociné ne répond pas correctement. \nCauses possibles : \nProtocole de connexion à l\'API modifié \nSite temporairement inaccessible \nSite définitivement inaccessible (pas de pot)')
 
 			elif codeRetour == 300:
-				cleanLayout(self.layout())
+				# cleanLayout(self.layout())
 				errorLabel = QLabel("Il n'y a pas de salle de cinema référencées à " + ville)
 				self.layout().itemAt(1).widget().addWidget(errorLabel)
 
 			elif codeRetour == 400:
-				cleanLayout(self.layout())
+				# cleanLayout(self.layout())
 				errorLabel = QLabel("La ville " + ville + u" n'est pas référencée, êtes-vous certain de l'orthographe ?")
 				self.layout().itemAt(1).widget().addWidget(errorLabel)
 
