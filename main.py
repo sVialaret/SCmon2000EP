@@ -22,22 +22,24 @@ class Principale(QWidget):
 		calendarJour.setDate(QDate.currentDate())
 		buttonValiderParam = QPushButton("Valider")
 
+		splitterRes = QSplitter()
+		splitterRes.setOrientation(Qt.Horizontal)
+
 		hboxParam = QHBoxLayout()
 		hboxResultats = QHBoxLayout()
 		vboxGlobal = QVBoxLayout()
 
-		splitterRes = QSplitter()
-		splitterRes.setOrientation(Qt.Horizontal)
 
 		hboxParam.addWidget(labelVille)
 		hboxParam.addWidget(textEditVille)
 		hboxParam.addWidget(labelJour)
 		hboxParam.addWidget(calendarJour)
 		hboxParam.addWidget(buttonValiderParam)
+
+		hboxResultats.addWidget(splitterRes)
  
 		vboxGlobal.addLayout(hboxParam)
-		# vboxGlobal.addLayout(hboxResultats)
-		vboxGlobal.addWidget(splitterRes)
+		vboxGlobal.addLayout(hboxResultats)
 
 
 		self.setLayout(vboxGlobal)
@@ -52,7 +54,7 @@ class Principale(QWidget):
 
 	def validerParam(self, ville, jour):
 		if ville != '':
-
+			self.cleanSplitter()
 			year = jour.year()
 			month = jour.month()
 			day = jour.day()
@@ -69,7 +71,6 @@ class Principale(QWidget):
 			CP, listeCine, codeRetour = api.cityDesc(ville)
 
 			if codeRetour == 100:
-				# cleanLayout(self.layout())
 				dicoHoraires = dict()
 				dicoCodeFilm = dict()
 
@@ -116,28 +117,22 @@ class Principale(QWidget):
 						
 				groupBoxSeances.setLayout(vboxSeances)
 				scrollAreaSeance.setWidget(groupBoxSeances)
-				self.layout().itemAt(1).widget().addWidget(scrollAreaSeance)
+				self.layout().itemAt(1).itemAt(0).widget().insertWidget(0,scrollAreaSeance)
 
 			elif codeRetour == 200:
-				# cleanLayout(self.layout())
 				errorMessageBox = QMessageBox()
-				errorMessageBox.critical(self, 'Erreur : connexion impossible', 'Allociné ne répond pas correctement. \nCauses possibles : \nProtocole de connexion à l\'API modifié \nSite temporairement inaccessible \nSite définitivement inaccessible (pas de pot)')
+				errorMessageBox.critical(self,'Erreur', 'Erreur : connexion impossible', 'Allociné ne répond pas correctement. \nCauses possibles : \nProtocole de connexion à l\'API modifié \nSite temporairement inaccessible \nSite définitivement inaccessible (pas de pot)')
 
 			elif codeRetour == 300:
-				# cleanLayout(self.layout())
-				errorLabel = QLabel("Il n'y a pas de salle de cinema référencées à " + ville)
-				self.layout().itemAt(1).widget().addWidget(errorLabel)
+				errorMessageBox = QMessageBox()
+				errorMessageBox.warning(self,'Pas de salle', "Il n'y a pas de salle de cinema référencées à " + ville)
 
 			elif codeRetour == 400:
-				# cleanLayout(self.layout())
-				errorLabel = QLabel("La ville " + ville + u" n'est pas référencée, êtes-vous certain de l'orthographe ?")
-				self.layout().itemAt(1).widget().addWidget(errorLabel)
+				errorMessageBox = QMessageBox()
+				errorMessageBox.warning(self,'Ville non référencée', "La ville " + ville + u" n'est pas référencée, êtes-vous certain de l'orthographe ?")
+
 
 	def infoFilm(self, code):
-		
-			# widgetToRemove = self.layout().itemAt(1).widget().itemAt(1)
-			# self.layout().itemAt(1).widget().removeWidget( widgetToRemove )
-			# widgetToRemove.setParent( None )
 
 		contentFilm = api.infoFilm(code)
 
@@ -161,68 +156,55 @@ class Principale(QWidget):
 		posterPixmap = QPixmap('/tmp/poster.jpg')
 		posterPixmap = posterPixmap.scaledToWidth(255)
 		posterLabel.setPixmap(posterPixmap)
-		lienAllocineLabel = QLabel("<a href="+url+">Lien Allocine</a>")
+		lienAllocineLabel = QLabel("<a href="+url+">Lien Allociné</a>")
 		lienAllocineLabel.setTextInteractionFlags(Qt.TextBrowserInteraction)
 		lienAllocineLabel.setOpenExternalLinks(True)
 
 		synopsisLabel = QLabel(synopsis)
 		synopsisLabel.setWordWrap(True)
 
-		
-		if self.layout().itemAt(1).widget().count() == 1:
 
-			groupBoxInfo = QGroupBox(titre)
-			vboxSynopsis = QVBoxLayout()
-			vboxSideAffiche = QVBoxLayout()
-			hboxAffiche = QHBoxLayout()
-			vboxInfo = QVBoxLayout()
+		self.cleanSplitter(onlyInfos=True)
 
-			vboxSideAffiche.addWidget(dureeLabel)
-			vboxSideAffiche.addWidget(realLabel)
-			vboxSideAffiche.addWidget(anneeLabel)
-			vboxSideAffiche.addWidget(paysLabel)
-			hboxAffiche.addLayout(vboxSideAffiche)
-			hboxAffiche.addWidget(posterLabel)
-			vboxSynopsis.addWidget(synopsisLabel)
-			vboxSynopsis.addWidget(lienAllocineLabel)
+		scrollAreaInfos = QScrollArea()
+		groupBoxInfos = QGroupBox()
+		vboxInfos = QVBoxLayout()
 
-			vboxInfo.addLayout(hboxAffiche)
-			vboxInfo.addLayout(vboxSynopsis)
+		vboxSynopsis = QVBoxLayout()
+		vboxSideAffiche = QVBoxLayout()
+		hboxAffiche = QHBoxLayout()
 
-			groupBoxInfo.setLayout(vboxInfo)
-			self.layout().itemAt(1).widget().addWidget(groupBoxInfo)
-		else:
-			cleanLayout(self.layout().itemAt(1).widget().widget(1).layout().itemAt(0).layout().itemAt(0))
-			cleanLayout(self.layout().itemAt(1).widget().widget(1).layout().itemAt(0))
-			cleanLayout(self.layout().itemAt(1).widget().widget(1).layout().itemAt(1))
+		vboxSideAffiche.addWidget(dureeLabel)
+		vboxSideAffiche.addWidget(realLabel)
+		vboxSideAffiche.addWidget(anneeLabel)
+		vboxSideAffiche.addWidget(paysLabel)
+		hboxAffiche.addLayout(vboxSideAffiche)
+		hboxAffiche.addWidget(posterLabel)
+		vboxSynopsis.addWidget(synopsisLabel)
+		vboxSynopsis.addWidget(lienAllocineLabel)
 
-			print(self.layout().itemAt(1).widget().widget(1).layout().itemAt(0).layout())
-			self.layout().itemAt(1).widget().widget(1).layout().itemAt(0).layout().itemAt(0).layout().addWidget(dureeLabel)
-			self.layout().itemAt(1).widget().widget(1).layout().itemAt(0).layout().itemAt(0).layout().addWidget(realLabel)
-			self.layout().itemAt(1).widget().widget(1).layout().itemAt(0).layout().itemAt(0).layout().addWidget(anneeLabel)
-			self.layout().itemAt(1).widget().widget(1).layout().itemAt(0).layout().itemAt(0).layout().addWidget(paysLabel)
-			self.layout().itemAt(1).widget().widget(1).layout().itemAt(0).layout().addWidget(posterLabel)
-			self.layout().itemAt(1).widget().widget(1).layout().itemAt(1).layout().addWidget(synopsisLabel)
-			self.layout().itemAt(1).widget().widget(1).layout().itemAt(1).layout().addWidget(lienAllocineLabel)
+		vboxInfos.addLayout(hboxAffiche)
+		vboxInfos.addLayout(vboxSynopsis)
 
+		groupBoxInfos.setLayout(vboxInfos)
+		scrollAreaInfos.setWidget(groupBoxInfos)
+
+		self.layout().itemAt(1).itemAt(0).widget().insertWidget(1,scrollAreaInfos)
 
 	def create_connect(self, film):
 		return lambda: self.infoFilm(film)
 
+	def cleanSplitter(self, onlyInfos = False):
+		for i in reversed(range(self.layout().itemAt(1).itemAt(0).widget().count())):
+			if i==0:
+				if not onlyInfos:
+					if self.layout().itemAt(1).itemAt(0).widget().widget(i):
+						self.layout().itemAt(1).itemAt(0).widget().widget(i).setParent(None)
+			else:
+				if self.layout().itemAt(1).itemAt(0).widget().widget(i):
+					self.layout().itemAt(1).itemAt(0).widget().widget(i).setParent(None)
 
-
-
-
-def cleanLayout(layout):
-	if layout:
-		for i in reversed(range(layout.count())): 
-			widgetToRemove = layout.itemAt( i ).widget()
-			if widgetToRemove:
-				# remove it from the layout list
-				layout.removeWidget( widgetToRemove )
-				# remove it from the gui
-				widgetToRemove.setParent( None )
 
 monApp=QApplication(sys.argv)
 fenetre=Principale()
-sys.exit(monApp.exec_())
+monApp.exec_()
