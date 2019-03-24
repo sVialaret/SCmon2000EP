@@ -109,6 +109,7 @@ class Principale(QWidget):
 
 
 	def afficherResultats(self, listeCine, jourCine):
+		self.showMaximized()
 
 		dicoHoraires = dict()
 		dicoCodeFilm = dict()
@@ -118,7 +119,6 @@ class Principale(QWidget):
 		vboxSeances = QVBoxLayout()
 
 		for cine in listeCine:
-			# print(cine['code'])
 			seanceVille = api.showtimeInTheater(cine['code'], jourCine)
 
 			if 'movieShowtimes' in seanceVille['theaterShowtimes'][0]:
@@ -220,7 +220,7 @@ class Principale(QWidget):
 		groupBoxInfos.setLayout(vboxInfos)
 		scrollAreaInfos.setWidget(groupBoxInfos)
 
-		self.layout().itemAt(1).itemAt(0).widget().insertWidget(1,scrollAreaInfos)
+		self.layout().itemAt(2).itemAt(0).widget().insertWidget(1,scrollAreaInfos)
 
 	def create_connect_infoFilm(self, film):
 		return lambda: self.infoFilm(film)
