@@ -58,23 +58,21 @@ class Principale(QWidget):
 		ville = ville.replace(' ','')
 		if ville != '':
 			self.cleanChoixVille()
+			self.cleanSplitter()
 			self.cleanChoixVilleBool = True
 			listeVille, codeRetour = api.inputToCity(ville)
 
 			if codeRetour == 100:
 
 				if len(listeVille) == 1:
-					self.descriptionVilleJour(ville, jour)
+					self.descriptionVilleJour(ville, ville, jour)
 				if len(listeVille) > 1:
-					vboxVilles = QVBoxLayout()
 					for villeDesc in listeVille:
 						if 'postalCode' in villeDesc:
 							strVilleDesc = villeDesc['name'] + " - " + villeDesc['postalCode'] + " (" + villeDesc['parent']['name'] + ")"
 							villeLabel = QPushButton(strVilleDesc)
-							villeLabel.clicked.connect(self.create_connect_ville(villeDesc['postalCode'], jour))
-							vboxVilles.addWidget(villeLabel)
+							villeLabel.clicked.connect(self.create_connect_ville(villeDesc['name'], villeDesc['postalCode'], jour))
 							self.layout().itemAt(1).addWidget(villeLabel)
-					# self.layout().itemAt(1).addLayout(vboxVilles)
 
 			elif codeRetour == 200:
 				errorMessageBox = QMessageBox()
@@ -89,7 +87,7 @@ class Principale(QWidget):
 				errorMessageBox.warning(self,u'Ville non référencée', "La ville " + ville + u" n'est pas référencée, êtes-vous certain de l'orthographe ?")
 
 
-	def descriptionVilleJour(self, codePostal, jour):
+	def descriptionVilleJour(self, ville, codePostal, jour):
 		year = jour.year()
 		month = jour.month()
 		day = jour.day()
@@ -105,11 +103,12 @@ class Principale(QWidget):
 		jourCine = str(year) + '-' + strMonth + '-' + strDay
 
 		listeCine, codeRetour = api.cityDesc(codePostal)
-		self.afficherResultats(listeCine, jourCine)
+		self.afficherResultats(ville, listeCine, jourCine)
 
 
-	def afficherResultats(self, listeCine, jourCine):
+	def afficherResultats(self, ville, listeCine, jourCine):
 		self.showMaximized()
+		self.cleanSplitter()
 
 		dicoHoraires = dict()
 		dicoCodeFilm = dict()
@@ -173,7 +172,6 @@ class Principale(QWidget):
 		pays = contentFilm['movie']['release']['country']['$']
 		realisateur = contentFilm['movie']['castingShort']['directors']
 		synopsis = contentFilm['movie']['synopsis']
-		casting = contentFilm['movie']['castingShort']['actors']
 		urlPoster = contentFilm['movie']['poster']['href']
 		api.getImg(urlPoster)
 
@@ -209,6 +207,10 @@ class Principale(QWidget):
 		vboxSideAffiche.addWidget(realLabel)
 		vboxSideAffiche.addWidget(anneeLabel)
 		vboxSideAffiche.addWidget(paysLabel)
+		if 'actors' in contentFilm['movie']['castingShort']:
+			casting = contentFilm['movie']['castingShort']['actors']
+			castingLabel = QLabel("Avec : " + casting)
+			vboxSideAffiche.addWidget(castingLabel)
 		hboxAffiche.addLayout(vboxSideAffiche)
 		hboxAffiche.addWidget(posterLabel)
 		vboxSynopsis.addWidget(synopsisLabel)
@@ -225,8 +227,8 @@ class Principale(QWidget):
 	def create_connect_infoFilm(self, film):
 		return lambda: self.infoFilm(film)
 
-	def create_connect_ville(self, codePostal, jour):
-		return lambda: self.descriptionVilleJour(codePostal, jour)
+	def create_connect_ville(self, ville, codePostal, jour):
+		return lambda: self.descriptionVilleJour(ville, codePostal, jour)
 
 	def cleanSplitter(self, onlyInfos = False):
 		for i in reversed(range(self.layout().itemAt(2).itemAt(0).widget().count())):
