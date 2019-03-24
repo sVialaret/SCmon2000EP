@@ -14,12 +14,7 @@ formatUrl = 'json'
 
 def init_connect():
 
-	### Initialisation : ip et user-agent aleatoire
-	## ip
-
-	ip = str(rd.randint(0, 255)) + '.' + str(rd.randint(0, 255)) + '.' + str(rd.randint(0, 255)) + '.' + str(rd.randint(0, 255))
-
-	## user-agent
+	### Initialisation : user-agent aleatoire
 
 	v = str(rd.randint(1, 4)) + '.' + str(rd.randint(0,9))
 	a = str(rd.randint(0, 9))
@@ -53,7 +48,7 @@ def init_connect():
 
 	headersUA = {'user-agent' : userAgents[rd.randint(0,len(userAgents)-1)]}
 
-	return (ip, headersUA)
+	return headersUA
 
 def getDate():
 	dateComplete = datetime.now()
@@ -74,17 +69,15 @@ def getDate():
 
 	return YMDstr
 
-def cityDesc(city):
-
+def inputToCity(city):
 	"""
 		code de retour : 
 			100 : tout est normal
 			200 : la requete n'a pas abouti
-			300 : pas de cine dans la ville
-			400 : la ville n'existe pas
+			300 : la ville n'existe pas
 	"""
 
-	ip, headersUA = init_connect()
+	headersUA = init_connect()
 	YMDstr = getDate()
 
 	searchField = city
@@ -101,22 +94,59 @@ def cityDesc(city):
 	urlComplete = 'http://api.allocine.fr/rest/v3/search?' + url + "&sig=" + sig
 	
 	codeRetour = 200
-	listeCine = []
-	codePostal = 0
 	
 	try:
 		req = requests.get(urlComplete, headers=headersUA)
 	except:
-		return codePostal, listeCine, codeRetour
-
-
+		return [], codeRetour
 
 	if req.status_code == 200:
 
+		codeRetour = 100
+
 		if 'location' in req.json()['feed']:
+			return req.json()['feed']['location'], codeRetour
+		else:
+			codeRetour = 300
 
-			codePostal = req.json()['feed']['location'][0]['postalCode']
+	return [], codeRetour
 
+def cityDesc(codePostal):
+	"""
+		code de retour : 
+			100 : tout est normal
+			200 : la requete n'a pas abouti
+			300 : pas de cine dans la ville
+			400 : la ville n'existe pas
+	"""
+
+	headersUA = init_connect()
+	YMDstr = getDate()
+
+	searchField = codePostal
+	filterField = ''
+	countField = '500'
+	pageField = '1'
+
+	url = 'q=' + searchField + '&filter=' + filterField + '&count=' + countField + '&page=' + pageField + '&format=json&partner=' + allocine_partner + '&sed=' + YMDstr
+	toEncrypt = allocine_secret_key + url
+	sig = urllib.quote_plus(base64.b64encode(hashlib.sha1(toEncrypt).digest()))
+	urlComplete = 'http://api.allocine.fr/rest/v3/search?' + url + "&sig=" + sig
+	
+	codeRetour = 200
+	listeCine = []
+	
+	try:
+		req = requests.get(urlComplete, headers=headersUA)
+	except:
+		return listeCine, codeRetour
+	# print(req.json())
+
+	if req.status_code == 200:
+
+		codeRetour = 100
+
+		if 'location' in req.json()['feed']:
 			if 'theater' in req.json()['feed']:
 				for theaterCity in req.json()['feed']['theater']:
 					listeCine.append(theaterCity)
@@ -125,13 +155,10 @@ def cityDesc(city):
 		else:
 			codeRetour = 400
 
-	else:
-		codeRetour = 200
-
-	return codePostal, listeCine, codeRetour
+	return listeCine, codeRetour
 
 def showtimeInTheater(codeTheater, jour):
-	ip, headersUA = init_connect()
+	headersUA = init_connect()
 	YMDstr = getDate()
 
 	searchField = codeTheater
@@ -140,23 +167,15 @@ def showtimeInTheater(codeTheater, jour):
 	pageField = '1'
 
 	url = 'theaters=' + searchField + '&date='+ jour + '&filter=' + filterField + '&count=' + countField + '&page=' + pageField + '&format=json&partner=' + allocine_partner + '&sed=' + YMDstr
-
 	toEncrypt = allocine_secret_key + url
-
 	sig = urllib.quote_plus(base64.b64encode(hashlib.sha1(toEncrypt).digest()))
-
 	urlComplete = 'http://api.allocine.fr/rest/v3/showtimelist?' + url + "&sig=" + sig
-	
-	# print(urlComplete)
-
 	req = requests.get(urlComplete, headers=headersUA)
-
-	# print(req.json())
 
 	return req.json()['feed']
 
 def infoFilm(codeFilm):
-	ip, headersUA = init_connect()
+	headersUA = init_connect()
 	YMDstr = getDate()
 
 	searchField = str(codeFilm)
@@ -165,13 +184,9 @@ def infoFilm(codeFilm):
 	pageField = '1'
 
 	url = 'code=' + searchField + '&filter=' + filterField + '&count=' + countField + '&page=' + pageField + '&format=json&partner=' + allocine_partner + '&sed=' + YMDstr
-
 	toEncrypt = allocine_secret_key + url
-
 	sig = urllib.quote_plus(base64.b64encode(hashlib.sha1(toEncrypt).digest()))
-
 	urlComplete = 'http://api.allocine.fr/rest/v3/movie?' + url + "&sig=" + sig
-
 	req = requests.get(urlComplete, headers=headersUA)
 
 	return req.json()
