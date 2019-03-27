@@ -17,3 +17,8 @@ Fonctionnalités à venir :
  * Recherche dans les communes voisines
  * Gestion des horaires
 
+Screenshots :
+=============
+
+![Alt text](screenshots/img_1.jpg?raw=true "img_1")
+![Alt text](screenshots/img_2.jpg?raw=true "img_1")
