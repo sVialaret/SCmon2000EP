@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
 
-import sys
-from PyQt5.QtWidgets import QSplitter, QMessageBox, QScrollArea, QGroupBox, QDateEdit, QWidget, QApplication, QLabel, QLineEdit, QPushButton, QHBoxLayout, QVBoxLayout
+import sys, api
+from PyQt5.QtWidgets import QTabWidget, QSplitter, QMessageBox, QScrollArea, QGroupBox, QDateEdit, QWidget, QApplication, QLabel, QLineEdit, QPushButton, QHBoxLayout, QVBoxLayout
 from PyQt5.QtCore import QDate, Qt
 from PyQt5.QtGui import QPixmap
-import api
-
 
 class Principale(QWidget):
 	def __init__(self):
@@ -109,6 +107,8 @@ class Principale(QWidget):
 	def afficherResultats(self, ville, listeCine, jourCine):
 		self.showMaximized()
 		self.cleanSplitter()
+		self.cleanChoixVille()
+
 
 		dicoHoraires = dict()
 		dicoCodeFilm = dict()
