@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import sys, api
-from PyQt5.QtWidgets import QTabWidget, QSplitter, QMessageBox, QScrollArea, QGroupBox, QDateEdit, QWidget, QApplication, QLabel, QLineEdit, QPushButton, QHBoxLayout, QVBoxLayout
+from PyQt5.QtWidgets import QSplitter, QMessageBox, QScrollArea, QGroupBox, QDateEdit, QWidget, QApplication, QLabel, QLineEdit, QPushButton, QHBoxLayout, QVBoxLayout
 from PyQt5.QtCore import QDate, Qt
 from PyQt5.QtGui import QPixmap
 
@@ -207,10 +207,10 @@ class Principale(QWidget):
 		vboxSideAffiche.addWidget(realLabel)
 		vboxSideAffiche.addWidget(anneeLabel)
 		vboxSideAffiche.addWidget(paysLabel)
-		if 'actors' in contentFilm['movie']['castingShort']:
-			casting = contentFilm['movie']['castingShort']['actors']
-			castingLabel = QLabel("Avec : " + casting)
-			vboxSideAffiche.addWidget(castingLabel)
+		# if 'actors' in contentFilm['movie']['castingShort']:
+		# 	casting = contentFilm['movie']['castingShort']['actors']
+		# 	castingLabel = QLabel("Avec : " + casting)
+		# 	vboxSideAffiche.addWidget(castingLabel)
 		hboxAffiche.addLayout(vboxSideAffiche)
 		hboxAffiche.addWidget(posterLabel)
 		vboxSynopsis.addWidget(synopsisLabel)

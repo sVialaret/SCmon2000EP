@@ -89,7 +89,7 @@ def inputToCity(city):
 
 	toEncrypt = allocine_secret_key + url
 
-	sig = urllib.quote_plus(base64.b64encode(hashlib.sha1(toEncrypt).digest()))
+	sig = urllib.parse.quote_plus(base64.b64encode(hashlib.sha1(toEncrypt.encode('utf-8')).digest()))
 
 	urlComplete = 'http://api.allocine.fr/rest/v3/search?' + url + "&sig=" + sig
 	
@@ -130,7 +130,7 @@ def cityDesc(codePostal):
 
 	url = 'q=' + searchField + '&filter=' + filterField + '&count=' + countField + '&page=' + pageField + '&format=json&partner=' + allocine_partner + '&sed=' + YMDstr
 	toEncrypt = allocine_secret_key + url
-	sig = urllib.quote_plus(base64.b64encode(hashlib.sha1(toEncrypt).digest()))
+	sig = urllib.parse.quote_plus(base64.b64encode(hashlib.sha1(toEncrypt.encode('utf-8')).digest()))
 	urlComplete = 'http://api.allocine.fr/rest/v3/search?' + url + "&sig=" + sig
 	
 	codeRetour = 200
@@ -168,7 +168,7 @@ def showtimeInTheater(codeTheater, jour):
 
 	url = 'theaters=' + searchField + '&date='+ jour + '&filter=' + filterField + '&count=' + countField + '&page=' + pageField + '&format=json&partner=' + allocine_partner + '&sed=' + YMDstr
 	toEncrypt = allocine_secret_key + url
-	sig = urllib.quote_plus(base64.b64encode(hashlib.sha1(toEncrypt).digest()))
+	sig = urllib.parse.quote_plus(base64.b64encode(hashlib.sha1(toEncrypt.encode('utf-8')).digest()))
 	urlComplete = 'http://api.allocine.fr/rest/v3/showtimelist?' + url + "&sig=" + sig
 	req = requests.get(urlComplete, headers=headersUA)
 
@@ -185,11 +185,11 @@ def infoFilm(codeFilm):
 
 	url = 'code=' + searchField + '&filter=' + filterField + '&count=' + countField + '&page=' + pageField + '&format=json&partner=' + allocine_partner + '&sed=' + YMDstr
 	toEncrypt = allocine_secret_key + url
-	sig = urllib.quote_plus(base64.b64encode(hashlib.sha1(toEncrypt).digest()))
+	sig = urllib.parse.quote_plus(base64.b64encode(hashlib.sha1(toEncrypt.encode('utf-8')).digest()))
 	urlComplete = 'http://api.allocine.fr/rest/v3/movie?' + url + "&sig=" + sig
 	req = requests.get(urlComplete, headers=headersUA)
 
 	return req.json()
 
 def getImg(url):
-	urllib.urlretrieve(url, "/tmp/poster.jpg")
+	urllib.request.urlretrieve(url, "/tmp/poster.jpg")
